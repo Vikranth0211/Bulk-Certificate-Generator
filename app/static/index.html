@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bulk Certificate Generator & Verification System</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+
+    <!-- Header Navbar -->
+    <header>
+        <div class="nav-container">
+            <div class="brand">
+                <div class="brand-icon">🎓</div>
+                <div class="brand-title">Bulk Certificate Generator</div>
+            </div>
+            <div class="nav-links">
+                <button class="nav-btn active" data-tab="generator-panel">🚀 Generator</button>
+                <button class="nav-btn" data-tab="jobs-panel">📊 Jobs Monitor</button>
+                <button class="nav-btn" data-tab="verify-panel">🔍 Verifier</button>
+                <a href="/docs" target="_blank" class="docs-link">OpenAPI Docs ↗</a>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content Container -->
+    <main class="container">
+
+        <!-- TAB 1: GENERATOR PANEL -->
+        <section id="generator-panel" class="tab-panel">
+            <div class="glass-panel">
+                <div class="panel-header">
+                    <h2 class="panel-title">✨ Create Certificate Generation Batch</h2>
+                    <button id="loadSampleBtn" class="btn btn-secondary btn-sm">⚡ Load Sample Recipients (with Failure Test)</button>
+                </div>
+
+                <div class="grid-2">
+                    <!-- JSON Batch Form -->
+                    <div>
+                        <h3 style="font-family: var(--font-heading); font-size: 1.1rem; margin-bottom: 1rem;">Option A: JSON Batch Submission</h3>
+                        <form id="jsonBatchForm">
+                            <div class="form-group">
+                                <label class="form-label">Job Title</label>
+                                <input type="text" id="jobTitle" class="form-control" placeholder="e.g. Python Developer Certification 2026" required>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Event / Course Name</label>
+                                <input type="text" id="eventName" class="form-control" placeholder="e.g. FastAPI & Asynchronous Architecture" required>
+                            </div>
+                            <div class="grid-2" style="margin-bottom: 0;">
+                                <div class="form-group">
+                                    <label class="form-label">Issuing Organization</label>
+                                    <input type="text" id="issuerName" class="form-control" placeholder="e.g. Global Tech Institute">
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Issue Date</label>
+                                    <input type="text" id="issueDate" class="form-control" placeholder="e.g. October 10, 2026">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Recipients Payload (JSON Array)</label>
+                                <textarea id="recipientsJson" class="form-control" rows="8" placeholder='[\n  { "name": "Alice Smith", "email": "alice@example.com" },\n  { "name": "Bob Jones", "email": "bob@example.com" }\n]' required></textarea>
+                            </div>
+                            <button type="submit" class="btn btn-primary" style="width: 100%;">🚀 Generate Bulk Certificates</button>
+                        </form>
+                    </div>
+
+                    <!-- CSV Batch Form -->
+                    <div>
+                        <h3 style="font-family: var(--font-heading); font-size: 1.1rem; margin-bottom: 1rem;">Option B: CSV File Bulk Upload</h3>
+                        <form id="csvBatchForm" enctype="multipart/form-data">
+                            <div class="form-group">
+                                <label class="form-label">Job Title</label>
+                                <input type="text" name="title" class="form-control" placeholder="e.g. Annual Workshop Graduates" required>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Event / Course Name</label>
+                                <input type="text" name="event_name" class="form-control" placeholder="e.g. Data Engineering Bootcamp" required>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Issuing Organization</label>
+                                <input type="text" name="issuer" class="form-control" placeholder="e.g. Tech Skills Council" value="Organization">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Issue Date</label>
+                                <input type="text" name="issue_date" class="form-control" placeholder="e.g. October 10, 2026">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Upload CSV File (with <code>name</code> header)</label>
+                                <input type="file" name="file" accept=".csv" class="form-control" required>
+                            </div>
+                            <button type="submit" class="btn btn-accent" style="width: 100%;">📁 Upload CSV & Generate</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- TAB 2: JOBS MONITOR PANEL -->
+        <section id="jobs-panel" class="tab-panel" style="display: none;">
+            <div class="glass-panel">
+                <div class="panel-header">
+                    <h2 class="panel-title">📊 Generation Jobs & Status Progress</h2>
+                    <button class="btn btn-secondary btn-sm" onclick="loadJobsList()">🔄 Refresh List</button>
+                </div>
+
+                <div class="table-responsive">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Job & Event</th>
+                                <th>Status</th>
+                                <th>Progress</th>
+                                <th>Success</th>
+                                <th>Failed</th>
+                                <th>Submitted At</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="jobsTableBody">
+                            <tr><td colspan="7" style="text-align: center; color: var(--text-muted); padding: 2rem;">Loading jobs list...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- TAB 3: VERIFIER PANEL -->
+        <section id="verify-panel" class="tab-panel" style="display: none;">
+            <div class="glass-panel" style="max-width: 700px; margin: 0 auto;">
+                <div class="panel-header">
+                    <h2 class="panel-title">🔍 Public Certificate Verifier</h2>
+                </div>
+                <p style="color: var(--text-muted); margin-bottom: 1.5rem;">Enter a Certificate ID or 16-character Verification Code to verify recipient details and cryptographic integrity.</p>
+
+                <form id="verifyForm" style="display: flex; gap: 0.75rem; margin-bottom: 1.5rem;">
+                    <input type="text" id="verifyInput" class="form-control" placeholder="e.g. 5AF6D4DD... or Verification Code" required>
+                    <button type="submit" class="btn btn-primary">Verify</button>
+                </form>
+
+                <div id="verifyResult"></div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Certificate & Job Detail Modal -->
+    <div id="certModal" class="modal-backdrop">
+        <div class="modal-card">
+            <div class="modal-header">
+                <div></div>
+                <button class="close-btn">&times;</button>
+            </div>
+            <div id="modalBody"></div>
+        </div>
+    </div>
+
+    <script src="/static/js/app.js"></script>
+</body>
+</html>

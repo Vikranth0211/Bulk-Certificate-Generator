@@ -1,0 +1,25 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Database
+*.db
+*.sqlite3
+certificates.db
+test_certificates.db
+
+# Storage / Generated Files
+storage/certificates/*
+!storage/certificates/.gitkeep
+
+# Environment & Virtual Env
+venv/
+ENV/
+env/
+.env
+
+# Pytest / Cache
+.pytest_cache/
+.coverage
+htmlcov/
